@@ -43,6 +43,7 @@ void gameLoop(struct GameState *gs) {
 	while (!gs->isFinished) {
 		puts("board:");
 		fprintBoard(stdout, &gs->board);
+		printf("est: %d\n", estimate(gs));
 
 		bool isMoveValid = true;
 

@@ -70,3 +70,7 @@ bool isFinalBoardState(const struct Board *board) {
 				return false;
 	return true;
 }
+
+int estimate(const struct GameState *gs) {
+	return 0;
+}

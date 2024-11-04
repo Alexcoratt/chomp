@@ -38,4 +38,6 @@ bool gameMove(struct GameState *, size_t row, size_t col);
 
 void setNextPlayerNum(struct GameState *);
 
+int estimate(const struct GameState *);
+
 #endif
