@@ -10,9 +10,14 @@ struct CoordPair {
 	size_t col;
 };
 
+enum GAME_LOOP_STATE {
+	GL_SUCCESS = 0,
+	GL_FILE_READING_ERROR
+};
+
+enum GAME_LOOP_STATE gameLoop(struct GameState *);
 void fprintBoard(FILE *, const struct Board *);
-void gameLoop(struct GameState *);
-struct CoordPair fscanCoordPair(FILE *);
+bool fscanCoordPair(FILE *, struct CoordPair *);
 
 int main(int argc, char **argv) {
 	if (argc != 3) {
@@ -31,15 +36,22 @@ int main(int argc, char **argv) {
 	struct GameState gs;
 	initGameState(&gs, PLAYER_COUNT, height, width);
 
-	gameLoop(&gs);
-	printf("player %lu won!\n", gs.currentPlayerNum);
+	enum GAME_LOOP_STATE glstate = gameLoop(&gs);
+
+	switch (glstate) {
+		case GL_FILE_READING_ERROR:
+			fputs("Unexpected EOF error\n", stderr);
+			break;
+		default:
+			printf("player %lu won!\n", gs.currentPlayerNum);
+	}
 
 	termGameState(&gs);
 
-	return 1;
+	return glstate;
 }	
 
-void gameLoop(struct GameState *gs) {
+enum GAME_LOOP_STATE gameLoop(struct GameState *gs) {
 	while (!gs->isFinished) {
 		puts("board:");
 		fprintBoard(stdout, &gs->board);
@@ -49,7 +61,10 @@ void gameLoop(struct GameState *gs) {
 
 		do {
 			printf("player %lu: ", gs->currentPlayerNum);
-			struct CoordPair coords = fscanCoordPair(stdin);
+
+			struct CoordPair coords;
+			if (!fscanCoordPair(stdin, &coords))
+				return GL_FILE_READING_ERROR;
 
 			isMoveValid = gameMove(gs, coords.row, coords.col);
 			if (!isMoveValid)
@@ -57,6 +72,8 @@ void gameLoop(struct GameState *gs) {
 
 		} while (!isMoveValid);
 	}
+
+	return GL_SUCCESS;
 }
 
 void fprintBoard(FILE *out, const struct Board *board) {
@@ -70,10 +87,6 @@ void fprintBoard(FILE *out, const struct Board *board) {
 	}
 }
 
-struct CoordPair fscanCoordPair(FILE *input) {
-	struct CoordPair res;
-	fscanf(input, "%lu", &res.row);
-	fscanf(input, "%lu", &res.col);
-
-	return res;
+bool fscanCoordPair(FILE *input, struct CoordPair *coords) {
+	return fscanf(input, "%lu%lu", &coords->row, &coords->col) != EOF;
 }
