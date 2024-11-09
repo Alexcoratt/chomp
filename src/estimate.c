@@ -10,13 +10,12 @@ size_t getColCount(const struct Board *, size_t row);
 #define WIN_EST 1
 
 int estimate(const struct GameState *gs) {
-    const size_t ROW_COUNT = getRowCount(&gs->board, 0);
-    const size_t COL_COUNT = getColCount(&gs->board, 0);
-    const bool IS_FIRST_PLAYER = gs->currentPlayerNum == FIRST_PLAYER;
-
     if (getBoardCellState(&gs->board, 1, 1))
         return UNKNOWN_EST;   
 
+    const size_t ROW_COUNT = getRowCount(&gs->board, 0);
+    const size_t COL_COUNT = getColCount(&gs->board, 0);
+    const bool IS_FIRST_PLAYER = gs->currentPlayerNum == FIRST_PLAYER;
     /*
     IS_FIRST_PLAYER r==c    RES
     0               0       LOSE
